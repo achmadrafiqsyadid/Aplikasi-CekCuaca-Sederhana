@@ -127,27 +127,65 @@ public class AplikasiCekCuacaHelper {
 }
 
     // === Simpan dan Muat CSV ===
-    public static void simpanCSV(DefaultTableModel model) {
-        try (PrintWriter pw = new PrintWriter(new File("data_cuaca.csv"))) {
-            for (int i = 0; i < model.getRowCount(); i++) {
-                pw.println(model.getValueAt(i, 0) + "," + model.getValueAt(i, 1));
-            }
-            JOptionPane.showMessageDialog(null, "Data berhasil disimpan ke data_cuaca.csv");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Gagal menyimpan data!");
-        }
-    }
+    // === Simpan CSV dengan File Chooser ===
+public static void simpanCSV(DefaultTableModel model) {
+    try {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Simpan Data Cuaca ke CSV");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
 
-    public static void muatCSV(DefaultTableModel model) {
-        try (BufferedReader br = new BufferedReader(new FileReader("data_cuaca.csv"))) {
-            model.setRowCount(0);
-            String line;
-            while ((line = br.readLine()) != null) {
-                model.addRow(line.split(","));
+        int userSelection = fileChooser.showSaveDialog(null);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            // Tambahkan ekstensi .csv jika belum ada
+            if (!fileToSave.getName().toLowerCase().endsWith(".csv")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
             }
-            JOptionPane.showMessageDialog(null, "Data berhasil dimuat!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Gagal memuat data!");
+
+            try (PrintWriter pw = new PrintWriter(fileToSave)) {
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    Object kota = model.getValueAt(i, 0);
+                    Object kondisi = model.getValueAt(i, 1);
+                    if (kota != null && kondisi != null) {
+                        pw.println(kota + "," + kondisi);
+                    }
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, "Data berhasil disimpan ke: " + fileToSave.getAbsolutePath());
         }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Gagal menyimpan data ke CSV!");
+    }
+}
+
+
+    // === Muat CSV dengan File Chooser ===
+public static void muatCSV(DefaultTableModel model) {
+    try {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Pilih File CSV untuk Dimuat");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
+
+        int userSelection = fileChooser.showOpenDialog(null);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToOpen = fileChooser.getSelectedFile();
+
+            try (BufferedReader br = new BufferedReader(new FileReader(fileToOpen))) {
+                model.setRowCount(0);
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] data = line.split(",");
+                    if (data.length == 2) {
+                        model.addRow(data);
+                    }
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, "Data berhasil dimuat dari: " + fileToOpen.getAbsolutePath());
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Gagal memuat data dari CSV!");
+    }
     }
 }

@@ -144,6 +144,8 @@ public class AplikasiCekCuacaSederhanaFrame extends javax.swing.JFrame {
 
         jScrollPane3.setViewportView(jPanelGambar);
 
+        jScrollTabel.setBackground(new java.awt.Color(255, 204, 153));
+
         jTableHistory.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
